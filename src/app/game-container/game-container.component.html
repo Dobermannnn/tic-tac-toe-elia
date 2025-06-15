@@ -1,11 +1,20 @@
 <div>
-  <div class="gridContainer">
+  <div class="boardContainer">
     <mat-grid-list cols="3" rowHeight="200px">
-      <mat-grid-tile *ngFor="let cell of board" >{{ cell }}</mat-grid-tile>
+      <mat-grid-tile
+        *ngFor="let cell of board(); let cellNum = index"
+        (click)="onCellClick(cellNum)"
+        >{{ cell }}</mat-grid-tile
+      >
     </mat-grid-list>
   </div>
-  <div id="gameOverInfo" *ngIf="isGameOver">
-      <button id="playAgainBtn">Play again!</button>
-      <span>{{ getDisplayText(gameScore) }}</span>
+
+  <div id="gameInfo">
+    @if (isGameOver) {
+    <button id="playAgainBtn" (click)="startOver()">Play again!</button>
+    <span>{{ getDisplayText(gameScore) }}</span>
+    } @else {
+    <span>{{ currentPlayer }} turn now!</span>
+    }
   </div>
 </div>
