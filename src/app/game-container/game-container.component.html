@@ -1,0 +1,11 @@
+<div>
+  <div class="gridContainer">
+    <mat-grid-list cols="3" rowHeight="200px">
+      <mat-grid-tile *ngFor="let cell of board" >{{ cell }}</mat-grid-tile>
+    </mat-grid-list>
+  </div>
+  <div id="gameOverInfo" *ngIf="isGameOver">
+      <button id="playAgainBtn">Play again!</button>
+      <span>{{ getDisplayText(gameScore) }}</span>
+  </div>
+</div>
