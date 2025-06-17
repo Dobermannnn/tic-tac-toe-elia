@@ -7,11 +7,6 @@ mat-grid-tile {
 mat-grid-list {
   width: 600px;
 }
-.disabled-cell {
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
 .boardContainer {
   display: flex;
   justify-content: center;

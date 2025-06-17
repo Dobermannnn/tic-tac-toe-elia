@@ -1,15 +1,26 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatList, MatListItem } from '@angular/material/list';
-import { getDisplayText } from '../util';
+import { GameResult } from '../game-container/gameTypes';
+import { GameService } from '../game.service';
+import { filter, map, scan } from 'rxjs';
+import { AsyncPipe, NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-history-display',
-  imports: [MatList,MatListItem],
+  imports: [MatList, MatListItem, AsyncPipe, NgFor],
   templateUrl: './history-display.component.html',
-  styleUrl: './history-display.component.scss'
+  styleUrl: './history-display.component.scss',
 })
 export class HistoryDisplayComponent {
-  history: string[] = ['tie', 'X'];
+  private gameService = inject(GameService);
 
-  getDisplayText = getDisplayText;
+  getDisplayText = this.gameService.getDisplayText;
+  gameResult$ = this.gameService.gameResult$;
+
+  history$ = this.gameResult$.pipe(
+    scan((history, currentResult) => {
+      return [...history, currentResult];
+    }, [] as GameResult[]),
+    map((history) => history.filter((gameResult) => gameResult !== 'new game'))
+  );
 }
