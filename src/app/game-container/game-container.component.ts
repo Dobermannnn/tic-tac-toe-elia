@@ -1,65 +1,57 @@
-import { NgFor } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnInit,
-  QueryList,
-  Signal,
-  signal,
-  ViewChildren,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridList, MatGridTile } from '@angular/material/grid-list';
-import { Subject } from 'rxjs';
 import { GameResult, PlayerType } from './gameTypes';
-
+import { getDisplayText } from '../util';
+import { map, Observable, scan, startWith, Subject, tap } from 'rxjs';
+import { AsyncPipe, NgFor } from '@angular/common';
 @Component({
   selector: 'app-game-container',
-  imports: [NgFor, MatGridList, MatGridTile, MatButtonModule],
+  imports: [MatGridList, MatGridTile, MatButtonModule, AsyncPipe, NgFor],
   templateUrl: './game-container.component.html',
   styleUrl: './game-container.component.scss',
 })
-export class GameContainerComponent implements OnInit {
-  board: Signal<(PlayerType | '') []> = signal(Array(9).fill(''));
+export class GameContainerComponent {
+  getDisplayText = getDisplayText;
 
-  isGameOver: boolean = false;
-  gameScore: GameResult = 'tie';
+  isGameOver: boolean = true;
+  gameScore: GameResult = 'new game';
   currentPlayer: PlayerType = 'X';
-
-  @Input() getDisplayText!: (score: string) => string;
 
   private cellClick$ = new Subject<number>();
 
-  ngOnInit() {
-    this.cellClick$.subscribe((index) => {
-      if (this.board()[index] == '') {
-        this.board()[index] = this.currentPlayer;
-        this.checkIfGameOver();
-        this.changePlayerTurn();
+  board$: Observable<('' | PlayerType)[]> = this.cellClick$.pipe(
+    startWith(-1),
+    scan((board, index) => {
+      if (index === -1) {
+        return this.getEmptyBoard();
+      } else if (board[index] !== '') {
+        return board;
       }
-    });
-  }
 
-  onCellClick(index: number): void {
+      const newBoard = [...board];
+      newBoard[index] = this.currentPlayer;
+
+      this.changePlayerTurn();
+
+     
+      return newBoard;
+    }, this.getEmptyBoard())
+  );
+
+  onCellClick(index: number):void {
     this.cellClick$.next(index);
   }
 
-  changePlayerTurn() {
-    this.currentPlayer = this.currentPlayer == 'X' ? 'O' : 'X';
+  changePlayerTurn():void {
+    this.currentPlayer = this.currentPlayer === 'O' ? 'X' : 'O';
   }
 
   checkIfGameOver() {
-    if (!this.board().includes('')) {
-      this.gameScore = 'tie';
-      this.isGameOver = true;
-    }
+  
   }
 
-  startOver() {
-    this.board().fill('');
-    this.gameScore = 'new game';
-    this.isGameOver = false;
+  getEmptyBoard(): (PlayerType | '')[] {
+    return Array(9).fill('') as (PlayerType | '')[];
   }
 }
