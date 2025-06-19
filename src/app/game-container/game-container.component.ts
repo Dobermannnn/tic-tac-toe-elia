@@ -1,26 +1,33 @@
-import { Component, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridList, MatGridTile } from '@angular/material/grid-list';
-import { AsyncPipe, NgFor } from '@angular/common';
-import  {GAME_RESULT} from "./game-container.types"
 import { GameService } from '../game.service';
-import { EMPTY_BOARD, getDisplayText } from '../game-container.utils';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { GAME_RESULT, GameResult, Player } from './game-container.types';
 
 @Component({
   selector: 'app-game-container',
-  imports: [MatGridList, MatGridTile, MatButtonModule, AsyncPipe],
+  imports: [MatGridList, MatGridTile, MatButtonModule],
   templateUrl: './game-container.component.html',
   styleUrl: './game-container.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GameContainerComponent {
-  private gameService = inject(GameService);
-  INGAME = GAME_RESULT.INGAME;
-  getDisplayText = getDisplayText;
-  gameResult$ = this.gameService.gameResult$;
-  board$ = this.gameService.board$;
-  currentPlayer$ = this.gameService.currentPlayer$;
+  private readonly gameService = inject(GameService);
 
-  onCellClick(index: number): void {
+  protected readonly gameResult = toSignal(this.gameService.gameResult$);
+  protected readonly board = toSignal(this.gameService.board$);
+  protected readonly currentPlayer = toSignal(this.gameService.currentPlayer$);
+  protected readonly isGameOver = toSignal(this.gameService.isGameOver$);
+
+  onCellClick(index: number, cell: string): void {
+    if (cell !== '') return;
     this.gameService.cellClick$.next(index);
   }
 

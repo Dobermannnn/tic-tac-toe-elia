@@ -1,16 +1,13 @@
-import { BehaviorSubject, Observable } from 'rxjs';
 import {
-  GameResult,
   GAME_RESULT,
+  GameResult,
   Player,
 } from './game-container/game-container.types';
 
 export const EMPTY_BOARD = Array<Player | ''>(9).fill('');
 
-export const getDisplayText = (score: GameResult): string => {
-  console.log('heloooooooooo');
-  return score === GAME_RESULT.TIE ? "It's a tie!" : `${score} Won!`;
-};
+export const getDisplayText = (score: GameResult): string =>
+  score === GAME_RESULT.TIE ? "It's a tie!" : `${score} Won!`;
 
 export const getCurrentResult = (currentBoard: ('' | Player)[]): GameResult => {
   const winningCombos = [

@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import {
-  BehaviorSubject,
   map,
-  merge,
   Observable,
   scan,
   startWith,
   Subject,
   switchMap,
-  withLatestFrom,
+  tap,
+  withLatestFrom
 } from 'rxjs';
-import {
-  GameResult,
-  PLAYERS,
-  Player,
-} from './game-container/game-container.types';
 import { EMPTY_BOARD, getCurrentResult } from './game-container.utils';
+import {
+  GAME_RESULT,
+  GameResult,
+  Player,
+  PLAYERS,
+} from './game-container/game-container.types';
 
 @Injectable({
   providedIn: 'root',
@@ -28,9 +28,9 @@ export class GameService {
   currentPlayer$: Observable<Player> = this.cellClick$.pipe(
     scan(
       (player) => (player === PLAYERS.X ? PLAYERS.O : PLAYERS.X),
-      PLAYERS.X as Player
+      PLAYERS.O as Player
     ),
-    startWith(PLAYERS.X)
+    startWith(PLAYERS.O)
   );
 
   board$: Observable<('' | Player)[]> = this.resetClick$.pipe(
@@ -52,4 +52,8 @@ export class GameService {
   );
 
   gameResult$: Observable<GameResult> = this.board$.pipe(map(getCurrentResult));
+
+  isGameOver$: Observable<boolean> = this.gameResult$.pipe(
+    map((gameResult) => gameResult !== GAME_RESULT.INGAME)
+  );
 }
