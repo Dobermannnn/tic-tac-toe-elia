@@ -1,9 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridList, MatGridTile } from '@angular/material/grid-list';
-import { INGAME } from './game-container.types';
 import { AsyncPipe, NgFor } from '@angular/common';
-
+import  {GAME_RESULT} from "./game-container.types"
 import { GameService } from '../game.service';
 import { EMPTY_BOARD, getDisplayText } from '../game-container.utils';
 
@@ -15,20 +14,17 @@ import { EMPTY_BOARD, getDisplayText } from '../game-container.utils';
 })
 export class GameContainerComponent {
   private gameService = inject(GameService);
-  INGAME = INGAME;
+  INGAME = GAME_RESULT.INGAME;
   getDisplayText = getDisplayText;
   gameResult$ = this.gameService.gameResult$;
   board$ = this.gameService.board$;
-  resetClick$ = this.gameService.resetClick$;
-  cellClick$ = this.gameService.cellClick$;
   currentPlayer$ = this.gameService.currentPlayer$;
 
   onCellClick(index: number): void {
-    this.cellClick$.next(index);
+    this.gameService.cellClick$.next(index);
   }
 
   onResetClick(): void {
-    this.resetClick$.next(true);
-    this.resetClick$.next(false);
+    this.gameService.resetClick$.next();
   }
 }

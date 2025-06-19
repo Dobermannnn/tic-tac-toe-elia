@@ -13,7 +13,9 @@
     <button id="playAgainBtn" (click)="onResetClick()">
       Play again!
     </button>
-    
+   
+    } @else {
+    <span>{{ currentPlayer$ |async}} turn now!</span>
     }
   </div>
 </div>

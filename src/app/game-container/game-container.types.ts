@@ -1,9 +1,11 @@
-export const PLAYER_ONE = 'X';
-export const PLAYER_TWO = 'O';
+export const PLAYERS = { X: 'X', O: 'O' } as const;
 
-export type PlayerType = typeof PLAYER_ONE | typeof PLAYER_TWO;
+export type Player = (typeof PLAYERS)[keyof typeof PLAYERS];
 
-export const TIE = 'tie';
-export const INGAME = 'ingame';
+export const GAME_RESULT = {
+  TIE: 'tie',
+  INGAME: 'ingame',
+  ...PLAYERS,
+} as const;
 
-export type GameResult = PlayerType | typeof TIE | typeof INGAME;
+export type GameResult = (typeof GAME_RESULT)[keyof typeof GAME_RESULT];

@@ -7,14 +7,13 @@ import {
   scan,
   startWith,
   Subject,
+  switchMap,
   withLatestFrom,
 } from 'rxjs';
 import {
   GameResult,
-  INGAME,
-  PLAYER_ONE,
-  PLAYER_TWO,
-  PlayerType,
+  PLAYERS,
+  Player,
 } from './game-container/game-container.types';
 import { EMPTY_BOARD, getCurrentResult } from './game-container.utils';
 
@@ -24,30 +23,33 @@ import { EMPTY_BOARD, getCurrentResult } from './game-container.utils';
 export class GameService {
   cellClick$ = new Subject<number>();
 
-  NEW_GAME_CODE = -1;
-
   resetClick$ = new Subject<void>();
 
-  currentPlayer$: Observable<PlayerType> = this.cellClick$.pipe(
+  currentPlayer$: Observable<Player> = this.cellClick$.pipe(
     scan(
-      (player) => (player === PLAYER_ONE ? PLAYER_TWO : PLAYER_ONE),
-      PLAYER_ONE as PlayerType
+      (player) => (player === PLAYERS.X ? PLAYERS.O : PLAYERS.X),
+      PLAYERS.X as Player
+    ),
+    startWith(PLAYERS.X)
+  );
+
+  board$: Observable<('' | Player)[]> = this.resetClick$.pipe(
+    startWith(null),
+    switchMap(() =>
+      this.cellClick$.pipe(
+        withLatestFrom(this.currentPlayer$),
+        scan((board, [index, player]) => {
+          if (board[index] !== '') return board;
+
+          const newBoard = [...board];
+          newBoard[index] = player;
+
+          return newBoard;
+        }, EMPTY_BOARD),
+        startWith(EMPTY_BOARD)
+      )
     )
   );
 
-  board$: Observable<('' | PlayerType)[]> = this.cellClick$.pipe(
-    startWith(-1),
-    scan((board, index) => {
-
-
-      const newBoard = [...board];
-      newBoard[index] = player;
-
-      return newBoard;
-    }, EMPTY_BOARD)
-  );
-
-  gameResult$: Observable<GameResult> = this.board$.pipe(
-    map((board) => getCurrentResult(board))
-  );
+  gameResult$: Observable<GameResult> = this.board$.pipe(map(getCurrentResult));
 }

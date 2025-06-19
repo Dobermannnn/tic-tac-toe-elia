@@ -1,19 +1,18 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   GameResult,
-  INGAME,
-  PlayerType,
-  TIE,
+  GAME_RESULT,
+  Player,
 } from './game-container/game-container.types';
 
-export const EMPTY_BOARD = Array<PlayerType | ''>(9).fill('');
+export const EMPTY_BOARD = Array<Player | ''>(9).fill('');
 
-export const getDisplayText = (score: GameResult): string =>
-  score === TIE ? "It's a tie!" : `${score} Won!`;
+export const getDisplayText = (score: GameResult): string => {
+  console.log('heloooooooooo');
+  return score === GAME_RESULT.TIE ? "It's a tie!" : `${score} Won!`;
+};
 
-export const getCurrentResult = (
-  currentBoard: ('' | PlayerType)[]
-): GameResult => {
+export const getCurrentResult = (currentBoard: ('' | Player)[]): GameResult => {
   const winningCombos = [
     [0, 1, 2],
     [3, 4, 5],
@@ -35,7 +34,7 @@ export const getCurrentResult = (
     }
   }
   if (!currentBoard.includes('')) {
-    return TIE;
+    return GAME_RESULT.TIE;
   }
-  return INGAME;
+  return GAME_RESULT.INGAME;
 };

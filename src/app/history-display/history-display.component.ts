@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MatList, MatListItem } from '@angular/material/list';
-import { GameResult, INGAME } from '../game-container/game-container.types';
+import { GAME_RESULT, GameResult,  } from '../game-container/game-container.types';
 import { GameService } from '../game.service';
 import { scan } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
@@ -19,7 +19,7 @@ export class HistoryDisplayComponent {
 
   history$ = this.gameResult$.pipe(
     scan((history, currentResult) => {
-      return currentResult !== INGAME ? [...history, currentResult] : history;
+      return currentResult !== GAME_RESULT.INGAME ? [...history, currentResult] : history;
     }, [] as GameResult[])
   );
 }
