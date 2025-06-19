@@ -1,8 +1,10 @@
 <div id="historyContainer">
   <h2>History</h2>
   <mat-list>
-    <mat-list-item *ngFor="let gameScore of history$ | async">
+    @for (gameScore of history$ | async; track $index; ) {
+    <mat-list-item>
       {{ getDisplayText(gameScore) }}
     </mat-list-item>
+    }
   </mat-list>
 </div>

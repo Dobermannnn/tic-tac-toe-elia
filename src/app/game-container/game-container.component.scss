@@ -32,3 +32,9 @@ mat-grid-list {
   flex-direction: column;
   align-items: center;
 }
+
+.disabledTile{
+  background-color: blueviolet;
+  cursor: not-allowed;
+  pointer-events: none;
+}

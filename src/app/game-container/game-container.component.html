@@ -1,22 +1,19 @@
 <div>
   <div class="boardContainer">
     <mat-grid-list cols="3" rowHeight="200px">
-      <mat-grid-tile
-        *ngFor="let cell of board$ | async; let i = index"
-        (click)="onCellClick(i)"
-        >{{ cell }}</mat-grid-tile
-      >
+      @for (cell of board$ | async; track $index) {
+          <mat-grid-tile (click)="onCellClick($index)">{{ cell }}</mat-grid-tile>
+
+      }
     </mat-grid-list>
   </div>
 
   <div id="gameInfo">
-    @if (gameResult$.getValue() != 'new game') {
-    <button id="playAgainBtn" (click)="onCellClick(NEW_GAME_CODE)">
+    @if ((gameResult$ | async) != INGAME) {
+    <button id="playAgainBtn" (click)="onResetClick()">
       Play again!
     </button>
-    <span>{{ getDisplayText(gameResult$.getValue()) }}</span>
-    } @else {
-    <span>{{ currentPlayer }} turn now!</span>
+    
     }
   </div>
 </div>
