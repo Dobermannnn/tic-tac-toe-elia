@@ -26,11 +26,12 @@ export class GameService {
   resetClick$ = new Subject<void>();
 
   currentPlayer$: Observable<Player> = this.cellClick$.pipe(
+    startWith(PLAYERS.X),
     scan(
       (player) => (player === PLAYERS.X ? PLAYERS.O : PLAYERS.X),
-      PLAYERS.O as Player
+      PLAYERS.X as Player
     ),
-    startWith(PLAYERS.O)
+    tap(console.log)
   );
 
   board$: Observable<('' | Player)[]> = this.resetClick$.pipe(
@@ -39,6 +40,7 @@ export class GameService {
       this.cellClick$.pipe(
         withLatestFrom(this.currentPlayer$),
         scan((board, [index, player]) => {
+ 
           if (board[index] !== '') return board;
 
           const newBoard = [...board];
