@@ -1,4 +1,10 @@
-import { computed, Injectable, Signal, signal } from '@angular/core';
+import {
+  computed,
+  Injectable,
+  linkedSignal,
+  Signal,
+  signal,
+} from '@angular/core';
 import {
   EMPTY_BOARD,
   getCurrentResult,
@@ -17,7 +23,6 @@ import {
 export class GameService {
   currentPlayer = signal<Player>(PLAYERS.X);
   board = signal<('' | Player)[]>(EMPTY_BOARD);
-  history = signal<String[]>([]);
 
   gameResult: Signal<GameResult> = computed(() =>
     getCurrentResult(this.board())
@@ -27,6 +32,21 @@ export class GameService {
     () => this.gameResult() !== GAME_RESULT.INGAME
   );
 
+  history = linkedSignal<GameResult, string[]>({
+    source: (): GameResult => this.gameResult(),
+    computation: (
+      source: GameResult,
+      prev?: { source: GameResult; value: string[] }
+    ) => {
+      const currHistory = prev?.value ?? [];
+
+      if (source !== GAME_RESULT.INGAME)
+        return [...currHistory, getDisplayText(source)];
+
+      return currHistory;
+    },
+  });
+
   togglePlayer() {
     this.currentPlayer.update((prevPlayer) =>
       prevPlayer === PLAYERS.X ? PLAYERS.O : PLAYERS.X
@@ -34,14 +54,11 @@ export class GameService {
   }
 
   applyMoveToBoard(index: number) {
-    const newBoard = [...this.board()];
-    newBoard[index] = this.currentPlayer();
-    this.board.set(newBoard);
-  }
+    this.board.update((prevBoard) => {
+      const board = [...prevBoard];
+      board[index] = this.currentPlayer();
 
-  addResultToHistory() {
-    const result = this.gameResult();
-    const display = getDisplayText(result);
-    this.history.update((prev) => [...prev, display]);
+      return board;
+    });
   }
 }

@@ -26,17 +26,11 @@ export class GameContainerComponent {
 
   protected readonly togglePlayer = this.gameService.togglePlayer;
   protected readonly applyMoveToBoard = this.gameService.applyMoveToBoard;
-  protected readonly addResultToHistory = this.gameService.addResultToHistory;
 
   onCellClick(index: number, cell: string): void {
     if (cell !== '') return;
-
+    
     this.applyMoveToBoard(index);
-
-    if (this.isGameOver()) {
-      this.addResultToHistory();
-    }
-
     this.togglePlayer();
   }
 
