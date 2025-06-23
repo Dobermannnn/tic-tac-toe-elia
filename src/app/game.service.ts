@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
 import {
-  map,
-  Observable,
-  scan,
-  startWith,
-  Subject,
-  switchMap,
-  tap,
-  withLatestFrom
-} from 'rxjs';
-import { EMPTY_BOARD, getCurrentResult } from './game-container.utils';
+  computed,
+  Injectable,
+  linkedSignal,
+  Signal,
+  signal,
+} from '@angular/core';
+import {
+  EMPTY_BOARD,
+  getCurrentResult,
+  getDisplayText,
+} from './game-container.utils';
 import {
   GAME_RESULT,
   GameResult,
@@ -21,41 +21,44 @@ import {
   providedIn: 'root',
 })
 export class GameService {
-  cellClick$ = new Subject<number>();
+  currentPlayer = signal<Player>(PLAYERS.X);
+  board = signal<('' | Player)[]>(EMPTY_BOARD);
 
-  resetClick$ = new Subject<void>();
-
-  currentPlayer$: Observable<Player> = this.cellClick$.pipe(
-    startWith(PLAYERS.X),
-    scan(
-      (player) => (player === PLAYERS.X ? PLAYERS.O : PLAYERS.X),
-      PLAYERS.X as Player
-    ),
-    tap(console.log)
+  gameResult: Signal<GameResult> = computed(() =>
+    getCurrentResult(this.board())
   );
 
-  board$: Observable<('' | Player)[]> = this.resetClick$.pipe(
-    startWith(null),
-    switchMap(() =>
-      this.cellClick$.pipe(
-        withLatestFrom(this.currentPlayer$),
-        scan((board, [index, player]) => {
- 
-          if (board[index] !== '') return board;
-
-          const newBoard = [...board];
-          newBoard[index] = player;
-
-          return newBoard;
-        }, EMPTY_BOARD),
-        startWith(EMPTY_BOARD)
-      )
-    )
+  isGameOver: Signal<boolean> = computed(
+    () => this.gameResult() !== GAME_RESULT.INGAME
   );
 
-  gameResult$: Observable<GameResult> = this.board$.pipe(map(getCurrentResult));
+  history = linkedSignal<GameResult, string[]>({
+    source: (): GameResult => this.gameResult(),
+    computation: (
+      source: GameResult,
+      prev?: { source: GameResult; value: string[] }
+    ) => {
+      const currHistory = prev?.value ?? [];
 
-  isGameOver$: Observable<boolean> = this.gameResult$.pipe(
-    map((gameResult) => gameResult !== GAME_RESULT.INGAME)
-  );
+      if (source !== GAME_RESULT.INGAME)
+        return [...currHistory, getDisplayText(source)];
+
+      return currHistory;
+    },
+  });
+
+  togglePlayer() {
+    this.currentPlayer.update((prevPlayer) =>
+      prevPlayer === PLAYERS.X ? PLAYERS.O : PLAYERS.X
+    );
+  }
+
+  applyMoveToBoard(index: number) {
+    this.board.update((prevBoard) => {
+      const board = [...prevBoard];
+      board[index] = this.currentPlayer();
+
+      return board;
+    });
+  }
 }

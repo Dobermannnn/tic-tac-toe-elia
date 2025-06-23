@@ -1,15 +1,12 @@
-import { AsyncPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  Signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridList, MatGridTile } from '@angular/material/grid-list';
 import { GameService } from '../game.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { GAME_RESULT, GameResult, Player } from './game-container.types';
+import { EMPTY_BOARD } from '../game-container.utils';
 
 @Component({
   selector: 'app-game-container',
@@ -21,17 +18,23 @@ import { GAME_RESULT, GameResult, Player } from './game-container.types';
 export class GameContainerComponent {
   private readonly gameService = inject(GameService);
 
-  protected readonly gameResult = toSignal(this.gameService.gameResult$);
-  protected readonly board = toSignal(this.gameService.board$);
-  protected readonly currentPlayer = toSignal(this.gameService.currentPlayer$);
-  protected readonly isGameOver = toSignal(this.gameService.isGameOver$);
+  protected readonly gameResult = this.gameService.gameResult;
+  protected readonly board = this.gameService.board;
+  protected readonly isGameOver = this.gameService.isGameOver;
+  protected readonly currentPlayer = this.gameService.currentPlayer;
+  protected readonly history = this.gameService.history;
+
+  protected readonly togglePlayer = this.gameService.togglePlayer;
+  protected readonly applyMoveToBoard = this.gameService.applyMoveToBoard;
 
   onCellClick(index: number, cell: string): void {
     if (cell !== '') return;
-    this.gameService.cellClick$.next(index);
+    
+    this.applyMoveToBoard(index);
+    this.togglePlayer();
   }
 
   onResetClick(): void {
-    this.gameService.resetClick$.next();
+    this.board.set(EMPTY_BOARD);
   }
 }
