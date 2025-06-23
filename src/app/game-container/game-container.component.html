@@ -1,20 +1,19 @@
 <div>
-  <div class="boardContainer">
+  <div class="board-container" [class.disable-tile]="isGameOver()">
     <mat-grid-list cols="3" rowHeight="200px">
-      <mat-grid-tile
-        *ngFor="let cell of board(); let cellNum = index"
-        (click)="onCellClick(cellNum)"
-        >{{ cell }}</mat-grid-tile
-      >
+      @for (cell of board(); track $index) {
+      <mat-grid-tile (click)="onCellClick($index, cell)">{{
+        cell
+      }}</mat-grid-tile>
+      }
     </mat-grid-list>
   </div>
 
-  <div id="gameInfo">
-    @if (isGameOver) {
-    <button id="playAgainBtn" (click)="startOver()">Play again!</button>
-    <span>{{ getDisplayText(gameScore) }}</span>
+  <div id="game-info">
+    @if (isGameOver()) {
+    <button id="play-again-btn" (click)="onResetClick()">Play again!</button>
     } @else {
-    <span>{{ currentPlayer }} turn now!</span>
+    <span>{{ currentPlayer() }} turn now!</span>
     }
   </div>
 </div>
